@@ -1,0 +1,13 @@
+ 2020  openssl req -newkey rsa:2048 -keyout 2.key -out 2.csr
+ 2026  openssl x509 -signkey 2.key -in 2.csr -req -days 365 -out ca2.crt
+ 2029  openssl x509 -CA ca1.crt -CAkey 1.key -in 1.csr -req -days 365 -set_serial 01 -out ssl1.crt
+ 2026  openssl pkcs12 -inkey 2.key -in ssl2.crt -export -out 2.pfx
+
+ 1983  $JAVA_HOME/bin/keytool -importkeystore -srckeystore 1.pfx -srcstoretype PKCS12 -destkeystore 1.ks -deststoretype JKS
+
+ 2103  openssl s_client -connect localhost:8443 < /dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > p1.crt
+ 2110  $JAVA_HOME/bin/keytool -importcert -file p1.crt -keystore 1.ts
+
+Obs.: ssl1.crt == p1.crt
+	openssl pkcs12 -in 1.pfx -out 1.pem
+
